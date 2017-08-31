@@ -261,7 +261,7 @@ module.exports.merge = function(oldConfig, uiConfig) {
   config.module.rules = config.module.rules || []
 
   const customUIConfig = getFirstPlugin('custom-ui', uiConfig.plugins)
-  if (uiConfig) {
+  if (customUIConfig) {
     uiConfig.options.useUI = {
       name: customUIConfig.moduleName,
       mapPath: customUIConfig.mapPath
