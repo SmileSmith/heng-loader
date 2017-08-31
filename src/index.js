@@ -1,5 +1,13 @@
 'use strict'
 
+/* 首先首先，这个是FORKvux-loader的项目，Copyright (c) 2016-present, Airyland
+ * 非常感谢！！ 下面说明此loader的功能
+ * 模块的两个功能
+ * 1、loader方法，也就是如何处理source，详情见webpack-loader相关知识
+ * 2、merge方法，一般我们放在webpack配置中，合并两者的配置，导出最终完整的config
+ * 2017-08-31
+ */
+
 const path = require('path')
 const fs = require('fs')
 const utils = require('loader-utils')
@@ -24,40 +32,13 @@ const getLessVariables = require('./libs/get-less-variables')
 const HtmlBuildCallbackPlugin = require('../plugins/html-build-callback')
 const DuplicateStyle = require('../plugins/duplicate-style')
 
-/** build done callback **/
-
-function DonePlugin(callbacks) {
-  this.callbacks = callbacks || function() {}
-    // Setup the plugin instance with options...
-}
-
-DonePlugin.prototype.apply = function(compiler) {
-  let callbacks = this.callbacks
-  compiler.plugin('done', function() {
-    callbacks.forEach(function(fn) {
-      fn()
-    })
-  })
-}
-
-/** emit plugin **/
-function EmitPlugin(callback) {
-  this.callback = callback
-}
-
-EmitPlugin.prototype.apply = function(compiler) {
-  let callback = this.callback
-  compiler.plugin('emit', function(compilation, cb) {
-    callback(compilation, cb)
-  })
-}
-
 /* 导出loader处理函数
  * 导出最终完整的config
  * 2017-08-31
  */
 
 module.exports = function(source) {
+  // 下面都是在各个阶段需要插入的文本，修改source
   const SCRIPT = utils.stringifyRequest(this, scriptLoader).replace(/"/g, '')
   const STYLE = utils.stringifyRequest(this, styleLoader).replace(/"/g, '')
   const AFTER_LESS_STYLE = utils.stringifyRequest(this, afterLessLoader).replace(/"/g, '')
@@ -479,4 +460,32 @@ function getBabelLoader(projectRoot, name) {
     loader: 'babel-loader',
     include: componentPath
   }
+}
+
+/** build done callback **/
+
+function DonePlugin(callbacks) {
+  this.callbacks = callbacks || function() {}
+    // Setup the plugin instance with options...
+}
+
+DonePlugin.prototype.apply = function(compiler) {
+  let callbacks = this.callbacks
+  compiler.plugin('done', function() {
+    callbacks.forEach(function(fn) {
+      fn()
+    })
+  })
+}
+
+/** emit plugin **/
+function EmitPlugin(callback) {
+  this.callback = callback
+}
+
+EmitPlugin.prototype.apply = function(compiler) {
+  let callback = this.callback
+  compiler.plugin('emit', function(compilation, cb) {
+    callback(compilation, cb)
+  })
 }
