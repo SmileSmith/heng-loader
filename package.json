@@ -1,13 +1,13 @@
 {
-  "name": "vux-loader",
+  "name": "heng-loader",
   "version": "1.1.5",
-  "description": "extended loader for vue-loader",
+  "description": "extended loader for vux-loader",
   "main": "src/index.js",
   "keywords": [
-    "vux",
     "vue",
     "vue-loader",
     "vux-loader",
+    "heng-loader",
     "webpack-loader",
     "weui",
     "vue-components",
@@ -21,16 +21,14 @@
   "author": "airyland <airyland@qq.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/airyland/vux-loader"
+    "url": "https://github.com/SmileSmith/heng-loader"
   },
   "license": "MIT",
   "scripts": {
     "test": "mocha test/test.js --slow 5000 --timeout 15000"
   },
   "dependencies": {
-    "compare-versions": "^3.0.0",
     "cssnano": "^3.7.4",
-    "draftlog": "^1.0.10",
     "inline-manifest-webpack-plugin": "^3.0.1",
     "js-yaml": "^3.6.1",
     "less": "^2.7.1",
@@ -38,9 +36,7 @@
     "node-cli-config": "^0.0.1",
     "progress-bar-webpack-plugin": "^1.9.3",
     "touch": "^1.0.0",
-    "underscore": "^1.8.3",
     "uuid": "^3.0.1",
-    "webpack-merge": "^1.1.2",
     "webpack-sources": "^0.1.2"
   },
   "devDependencies": {

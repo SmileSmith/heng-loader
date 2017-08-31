@@ -1,22 +1,22 @@
 'use strict'
 
 const utils = require('loader-utils')
-const parseXIcon = require('./libs/parse-x-icon')
+const parseXIcon = require('../libs/parse-x-icon')
 
 module.exports = function (source) {
   this.cacheable()
   const _this = this
-  const config = this.vux || utils.getLoaderConfig(this, 'vux')
+  const uiConfig = this.customUI || utils.getLoaderConfig(this, 'customUI')
 
-  if (!config.plugins || !config.plugins.length) {
+  if (!uiConfig.plugins || !uiConfig.plugins.length) {
     return source
   }
 
-  if (config.options.useVuxUI && source.indexOf('</x-icon>') > -1) {
-    source = parseXIcon(source, config)
+  if (uiConfig.options.useUI && source.indexOf('</x-icon>') > -1) {
+    source = parseXIcon(source, uiConfig)
   }
 
-  config.plugins.forEach(function (plugin) {
+  uiConfig.plugins.forEach(function (plugin) {
     // style-parser
     if (plugin.name === 'before-template-compiler-parser') {
       if (plugin.fn) {

@@ -12,17 +12,6 @@
   html-webpack-plugin-alter-chunks
 */
 
-/**
-* 
-{
- events: {
-  'before-html-generation': function (data, cb) {
-    cb(null, data)
-  }
- }  
-}
-*/
-
 function Plugin(options) {
   this.events = options.events
 }
@@ -31,10 +20,9 @@ Plugin.prototype.apply = function (compiler) {
   let _this = this
   compiler.plugin('compilation', function (compilation) {
     for (let i in _this.events) {
-      compilation.plugin('html-webpack-plugin-' + i, _this.events[i]);
+      compilation.plugin('html-webpack-plugin-' + i, _this.events[i])
     }
-  });
+  })
+}
 
-};
-
-module.exports = Plugin;
+module.exports = Plugin
