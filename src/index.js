@@ -237,6 +237,39 @@ module.exports.merge = function(oldConfig, uiConfig) {
     })
   }
 
+  // merge oldConfig's uiConfig plugins and options
+  oldConfig.plugins.forEach(function(plugin) {
+    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.customUI){
+      const oldUIPlugins = plugin.options.customUI.plugins
+      if (oldUIPlugins && oldUIPlugins.length) {
+        oldUIPlugins.forEach(function(oldPlugin) {
+          if (uiConfig.plugins.length) {
+            let hasPush = false
+            uiConfig.plugins.forEach(function(plugin) {
+              if (oldPlugin.name === plugin.name) {
+                hasPush = true
+              }
+            })
+            if (!hasPush) {
+              uiConfig.plugins.push(oldPlugin)
+            }
+          } else {
+            uiConfig.plugins.push(oldPlugin)
+          }
+        })
+      }
+      const oldUIOptions = plugin.options.customUI.options
+      if (oldUIOptions) {
+        for (let name in oldUIOptions) {
+          if (!uiConfig.options[name]) {
+            uiConfig.options[name] = oldUIOptions[name]
+          }
+        }
+      }
+    }
+  })
+
+
   // check multi plugin instance
   const pluginGroup = _.groupBy(uiConfig.plugins, function(plugin) {
     return plugin.name

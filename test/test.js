@@ -12,7 +12,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin")
 var compiler = require('vue-loader/lib/template-compiler')
 var normalizeNewline = require('normalize-newline')
 
-var vuxLoader = require('../src/index.js')
+var hengLoader = require('../src/index.js')
 
 // var loaderPath = 'expose-loader?vueModule!' + path.resolve(__dirname, '../node_modules/vue-loader/index.js')
 var loaderPath = 'expose-loader?vueModule!' + path.resolve(__dirname, '../src/index.js') + '!vue-loader'
@@ -62,7 +62,7 @@ function bundle(options, vuxOptions, cb) {
     basicVux.plugins = vuxOptions.plugins
   }
 
-  config = vuxLoader.merge(config, basicVux)
+  config = hengLoader.merge(config, basicVux)
 
   var webpackCompiler = webpack(config)
 
@@ -142,16 +142,16 @@ var commomMapper = function (opts) {
   components = opts.components.map(function (one) {
     return one.newName
   })
-  return `import { ${components.join(', ')} } from 'vux'`
+  return `import { ${components.join(', ')} } from 'heng-ui'`
 }
 
 var vuxMapper = function (opts) {
   let str = ''
   opts.components.forEach(function (one) {
     if (one.originalName === 'AlertPlugin') {
-      str += `import ${one.newName} from 'vux/src/plugins/Alert'\n`
+      str += `import ${one.newName} from 'heng-ui/src/plugins/Alert'\n`
     } else if (one.originalName === 'ToastPlugin') {
-      str += `import ${one.newName} from 'vux/src/plugins/Toast'\n`
+      str += `import ${one.newName} from 'heng-ui/src/plugins/Toast'\n`
     }
   })
   return str
@@ -200,42 +200,42 @@ describe('vux-loader', function () {
 
     let tests = [{
       title: 'basic',
-      string: `import {A,B} from 'vux'`,
+      string: `import {A,B} from 'heng-ui'`,
       rs: ['A', 'B']
     }, {
       title: 'without space',
-      string: `import{A,B} from 'vux'`,
+      string: `import{A,B} from 'heng-ui'`,
       rs: ['A', 'B']
     }, {
       title: 'without space 2',
-      string: `import {A,B}from 'vux'`,
+      string: `import {A,B}from 'heng-ui'`,
       rs: ['A', 'B']
     }, {
       title: 'without space 3',
-      string: `import{A,B}from 'vux'`,
+      string: `import{A,B}from 'heng-ui'`,
       rs: ['A', 'B']
     },{
       title: 'do not parse comments',
-      string: `// import {A,B} from 'vux'
-import { C, D} from 'vux'`,
-      rs: `\nimport { C, D } from 'vux'`
+      string: `// import {A,B} from 'heng-ui'
+import { C, D} from 'heng-ui'`,
+      rs: `\nimport { C, D } from 'heng-ui'`
     }, {
       title: 'use as',
-      string: `import {A,B as C} from 'vux'`,
+      string: `import {A,B as C} from 'heng-ui'`,
       rs: ['A', 'C']
     }, {
       title: 'double quote',
-      string: `import {A,B} from "vux"`,
+      string: `import {A,B} from "heng-ui"`,
       rs: ['A', 'B']
     }, {
       title: 'multi line and single quote',
       string: `import { A,
-B } from 'vux'`,
+B } from 'heng-ui'`,
       rs: ['A', 'B']
     }, {
       title: 'multi line and double quote',
       string: `import { A,
-B } from "vux"`,
+B } from "heng-ui"`,
       rs: ['A', 'B']
     }, {
       title: 'no match',
@@ -246,94 +246,99 @@ B } from "vux"`,
       string: `import C from 'XY'
 import { D } from 'ZW'
 import {A,B} from 'vvv'
-import { C }  from 'vux'`,
+import { C }  from 'heng-ui'`,
       rs: `import C from 'XY'
 import { D } from 'ZW'
 import {A,B} from 'vvv'
-import { C } from 'vux'`
+import { C } from 'heng-ui'`
     }, {
-      title: 'vux test2',
-      string: `import {Group,Cell} from 'vux'
-import value2name from 'vux/src/filters/value2name'`,
-      rs: `import { Group, Cell } from 'vux'
-import value2name from 'vux/src/filters/value2name'`
+      title: 'heng-ui test2',
+      string: `import {Group,Cell} from 'heng-ui'
+import value2name from 'heng-ui/src/filters/value2name'`,
+      rs: `import { Group, Cell } from 'heng-ui'
+import value2name from 'heng-ui/src/filters/value2name'`
 },{
-  title: 'vux test3',
+  title: 'heng-ui test3',
   string: `import {Group,
-Cell} from 'vux'
-import value2name from 'vux/src/filters/value2name'`,
-  rs: `import { Group, Cell } from 'vux'
-import value2name from 'vux/src/filters/value2name'`
+Cell} from 'heng-ui'
+import value2name from 'heng-ui/src/filters/value2name'`,
+  rs: `import { Group, Cell } from 'heng-ui'
+import value2name from 'heng-ui/src/filters/value2name'`
 },{
-  title: 'vux test4',
-  string: `import { M1, M2 } from 'vux'
+  title: 'heng-ui test4',
+  string: `import { M1, M2 } from 'heng-ui'
 import { mapMutations, mapState } from 'vuex'
-import { Group, Cell } from 'vux'
-import { Group1, Cell1 } from 'vux'
-import value2name from 'vux/src/filters/value2name'`,
-  rs: `import { M1, M2 } from 'vux'
+import { Group, Cell } from 'heng-ui'
+import { Group1, Cell1 } from 'heng-ui'
+import value2name from 'heng-ui/src/filters/value2name'`,
+  rs: `import { M1, M2 } from 'heng-ui'
 import { mapMutations, mapState } from 'vuex'
-import { Group, Cell } from 'vux'
-import { Group1, Cell1 } from 'vux'
-import value2name from 'vux/src/filters/value2name'`
+import { Group, Cell } from 'heng-ui'
+import { Group1, Cell1 } from 'heng-ui'
+import value2name from 'heng-ui/src/filters/value2name'`
 }, {
-  title: 'vux test5',
+  title: 'heng-ui test5',
   string: `import {
 XX,
-YY} from 'vux'`,
-  rs: `import { XX, YY } from 'vux'`
+YY} from 'heng-ui'`,
+  rs: `import { XX, YY } from 'heng-ui'`
 }, {
-  title: 'vux test6',
+  title: 'heng-ui test6',
   string: `/**/
-import {Divider } from 'vux'`,
+import {Divider } from 'heng-ui'`,
   rs: `/**/
-import { Divider } from 'vux'`
+import { Divider } from 'heng-ui'`
 }]
 
     tests.forEach(function (one) {
       it(one.title, function () {
-        const rs = parse(one.string, commomMapper)
+        const rs = parse(one.string, commomMapper, 'heng-ui')
         if (typeof one.rs === 'string') {
           expect(rs).to.equal(one.rs)
         } else {
-          expect(rs).to.equal(`import { ${one.rs.join(', ')} } from 'vux'`)
+          expect(rs).to.equal(`import { ${one.rs.join(', ')} } from 'heng-ui'`)
         }
       })
     })
 
-    it('vux test', function () {
-      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'vux'`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
-`)
-    })
+    let hengUITests = [{
+      title: 'heng-plugin test1',
+      string: `import {AlertPlugin, ToastPlugin} from 'heng-ui'`,
+      rs:`import AlertPlugin from 'heng-ui/src/plugins/Alert'
+import ToastPlugin from 'heng-ui/src/plugins/Toast'
+`
+    },{
+      title: 'heng-plugin test2',
+      string: `import {AlertPlugin, ToastPlugin} from 'heng-ui'
+// import { AlertPlugin } from 'heng-ui'`,
+      rs: `import AlertPlugin from 'heng-ui/src/plugins/Alert'
+import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
-    it('vux test7', function () {
-      const rs = parse(`import {AlertPlugin, ToastPlugin} from 'vux'
-// import { AlertPlugin } from 'vux'`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
-
-`)
-    })
-
-    it('issue #1579 (1)', function () {
-      const rs = parse(`import {
+`
+    },{
+      title: 'vux-loader plugin issue #1579 (1)',
+      string: `import {
   AlertPlugin,
     ToastPlugin
-} from 'vux';`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
-`)
-    })
-
-    it('issue #1579 (2)', function () {
-      const rs = parse(`import {AlertPlugin,
+} from 'heng-ui';`,
+      rs: `import AlertPlugin from 'heng-ui/src/plugins/Alert'
+import ToastPlugin from 'heng-ui/src/plugins/Toast'
+`
+    },{
+      title: 'vux-loader plugin issue #1579 (2)',
+      string: `import {AlertPlugin,
     ToastPlugin
-} from 'vux'`, vuxMapper)
-      expect(rs).to.equal(`import AlertPlugin from 'vux/src/plugins/Alert'
-import ToastPlugin from 'vux/src/plugins/Toast'
-`)
+} from 'heng-ui'`,
+      rs:`import AlertPlugin from 'heng-ui/src/plugins/Alert'
+import ToastPlugin from 'heng-ui/src/plugins/Toast'
+`
+    }]
+
+    hengUITests.forEach(function (one) {
+      it(one.title, function () {
+        const rs = parse(one.string, vuxMapper, 'heng-ui')
+        expect(rs).to.equal(one.rs)
+      })
     })
 
   })
@@ -426,7 +431,7 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         plugins: []
       }
       const merge = function () {
-        return vuxLoader.merge(webpackConfig, {
+        return hengLoader.merge(webpackConfig, {
           options: {
             env: 'env1'
           },
@@ -446,50 +451,50 @@ import ToastPlugin from 'vux/src/plugins/Toast'
       const webpackConfig = {
         plugins: []
       }
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = hengLoader.merge(webpackConfig, {
         options: {
           env: 'env1'
         }
       })
 
-      expect(config1.plugins[0].options.vux.options.env).to.equal('env1')
+      expect(config1.plugins[0].options.customUI.options.env).to.equal('env1')
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = hengLoader.merge(config1, {
         options: {
           env: 'env2'
         }
       })
 
-      expect(config2.plugins[0].options.vux.options.env).to.equal('env2')
+      expect(config2.plugins[0].options.customUI.options.env).to.equal('env2')
     })
 
     it('should merge plugins with the same name', function () {
       const webpackConfig = {}
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = hengLoader.merge(webpackConfig, {
         plugins: [{
           name: 'test1',
           arg: 1
         }]
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
-      expect(config1.plugins[0].options.vux.plugins[0].arg).to.equal(1)
+      expect(config1.plugins[0].options.customUI.plugins.length).to.equal(1)
+      expect(config1.plugins[0].options.customUI.plugins[0].arg).to.equal(1)
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = hengLoader.merge(config1, {
         plugins: [{
           name: 'test1',
           arg: 2
         }]
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
-      expect(config1.plugins[0].options.vux.plugins[0].arg).to.equal(2)
+      expect(config1.plugins[0].options.customUI.plugins.length).to.equal(1)
+      expect(config1.plugins[0].options.customUI.plugins[0].arg).to.equal(2)
 
     })
 
     it('should delete plugin when env is change', function () {
       const webpackConfig = {}
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = hengLoader.merge(webpackConfig, {
         options: {
           env: 'env1'
         },
@@ -500,21 +505,21 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+      expect(config1.plugins[0].options.customUI.plugins.length).to.equal(1)
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = hengLoader.merge(config1, {
         options: {
           env: 'env2'
         }
       })
 
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(0)
+      expect(config1.plugins[0].options.customUI.plugins.length).to.equal(0)
 
     })
 
-    it('should merge plugins', function () {
+    it('should merge old plugins', function () {
       const webpackConfig = {}
-      const config1 = vuxLoader.merge(webpackConfig, {
+      const config1 = hengLoader.merge(webpackConfig, {
         options: {
           env: 'env1'
         },
@@ -525,27 +530,24 @@ import ToastPlugin from 'vux/src/plugins/Toast'
         }]
       })
 
-      expect(config1.plugins[0].options.vux.allPlugins.length).to.equal(1)
-      expect(config1.plugins[0].options.vux.plugins.length).to.equal(1)
+      expect(config1.plugins[0].options.customUI.plugins.length).to.equal(1)
 
-      const config2 = vuxLoader.merge(config1, {
+      const config2 = hengLoader.merge(config1, {
         plugins: [{
           name: 'test2'
         }]
       })
 
-      expect(config2.plugins[0].options.vux.allPlugins.length).to.equal(2)
-      expect(config2.plugins[0].options.vux.plugins.length).to.equal(2)
+      expect(config2.plugins[0].options.customUI.plugins.length).to.equal(2)
 
-       const config3 = vuxLoader.merge(config2, {
+       const config3 = hengLoader.merge(config2, {
         plugins: [{
           name: 'test3',
           envs: ['env3']
         }]
       })
 
-      expect(config3.plugins[0].options.vux.allPlugins.length).to.equal(3)
-      expect(config3.plugins[0].options.vux.plugins.length).to.equal(2)
+      expect(config3.plugins[0].options.customUI.plugins.length).to.equal(2)
 
     })
   })
@@ -646,379 +648,3 @@ import ToastPlugin from 'vux/src/plugins/Toast'
   })
 })
 
-/**
-
-describe.skip('vue-loader', function () {
-  it('basic', function (done) {
-    test({
-      entry: './test/fixtures/basic.vue'
-    }, function (window, module, rawModule) {
-      var vnode = mockRender(module, {
-          msg: 'hi'
-        })
-        // <h2 class="red">{{msg}}</h2>
-      expect(vnode.tag).to.equal('h2')
-      expect(vnode.data.staticClass).to.equal('red')
-      expect(vnode.children[0]).to.equal('hi')
-
-      expect(module.data().msg).to.contain('Hello from Component A!')
-      var style = window.document.querySelector('style').textContent
-      style = normalizeNewline(style)
-      expect(style).to.contain('comp-a h2 {\n  color: #f00;\n}')
-      done()
-    })
-  })
-
-  it('expose filename', function (done) {
-    test({
-      entry: './test/fixtures/basic.vue'
-    }, function (window, module, rawModule) {
-      expect(module.__file).to.equal(path.resolve(__dirname, './fixtures/basic.vue'))
-      done()
-    })
-  })
-
-  it('pre-processors', function (done) {
-    test({
-      entry: './test/fixtures/pre.vue'
-    }, function (window, module) {
-      var vnode = mockRender(module)
-        // div
-        //   h1 This is the app
-        //   comp-a
-        //   comp-b
-      expect(vnode.children[0].tag).to.equal('h1')
-      expect(vnode.children[1].tag).to.equal('comp-a')
-      expect(vnode.children[2].tag).to.equal('comp-b')
-
-      expect(module.data().msg).to.contain('Hello from coffee!')
-      var style = window.document.querySelector('style').textContent
-      expect(style).to.contain('body {\n  font: 100% Helvetica, sans-serif;\n  color: #999;\n}')
-      done()
-    })
-  })
-
-  it('scoped style', function (done) {
-    test({
-      entry: './test/fixtures/scoped-css.vue'
-    }, function (window, module) {
-      var id = 'data-v-' + genId(require.resolve('./fixtures/scoped-css.vue'))
-      expect(module._scopeId).to.equal(id)
-
-      var vnode = mockRender(module, {
-          ok: true
-        })
-        // <div>
-        //   <div><h1>hi</h1></div>
-        //   <p class="abc def">hi</p>
-        //   <template v-if="ok"><p class="test">yo</p></template>
-        //   <svg><template><p></p></template></svg>
-        // </div>
-      expect(vnode.children[0].tag).to.equal('div')
-      expect(vnode.children[1]).to.equal(' ')
-      expect(vnode.children[2].tag).to.equal('p')
-      expect(vnode.children[2].data.staticClass).to.equal('abc def')
-      expect(vnode.children[4][0].tag).to.equal('p')
-      expect(vnode.children[4][0].data.staticClass).to.equal('test')
-
-      var style = window.document.querySelector('style').textContent
-      style = normalizeNewline(style)
-      expect(style).to.contain('.test[' + id + '] {\n  color: yellow;\n}')
-      expect(style).to.contain('.test[' + id + ']:after {\n  content: \'bye!\';\n}')
-      expect(style).to.contain('h1[' + id + '] {\n  color: green;\n}')
-      done()
-    })
-  })
-
-  it('style import', function (done) {
-    test({
-      entry: './test/fixtures/style-import.vue'
-    }, function (window) {
-      var styles = window.document.querySelectorAll('style')
-      expect(styles[0].textContent).to.contain('h1 { color: red;\n}')
-        // import with scoped
-      var id = 'data-v-' + genId(require.resolve('./fixtures/style-import.vue'))
-      expect(styles[1].textContent).to.contain('h1[' + id + '] { color: green;\n}')
-      done()
-    })
-  })
-
-  it('template import', function (done) {
-    test({
-      entry: './test/fixtures/template-import.vue'
-    }, function (window, module) {
-      var vnode = mockRender(module)
-        // '<div><h1>hello</h1></div>'
-      expect(vnode.children[0].tag).to.equal('h1')
-      expect(vnode.children[0].children[0]).to.equal('hello')
-      done()
-    })
-  })
-
-  it('script import', function (done) {
-    test({
-      entry: './test/fixtures/script-import.vue'
-    }, function (window, module) {
-      expect(module.data().msg).to.contain('Hello from Component A!')
-      done()
-    })
-  })
-
-  it('source map', function (done) {
-    var config = Object.assign({}, globalConfig, {
-      entry: './test/fixtures/basic.vue',
-      devtool: '#source-map'
-    })
-    bundle(config, function (code) {
-      var map = mfs.readFileSync('/test.build.js.map').toString()
-      var smc = new SourceMapConsumer(JSON.parse(map))
-      var line
-      var col
-      var targetRE = /^\s+msg: 'Hello from Component A!'/
-      code.split(/\r?\n/g).some(function (l, i) {
-        if (targetRE.test(l)) {
-          line = i + 1
-          col = 0
-          return true
-        }
-      })
-      var pos = smc.originalPositionFor({
-        line: line,
-        column: col
-      })
-      expect(pos.source.indexOf('basic.vue') > -1)
-      expect(pos.line).to.equal(9)
-      done()
-    })
-  })
-
-  it('media-query', function (done) {
-    test({
-      entry: './test/fixtures/media-query.vue'
-    }, function (window) {
-      var style = window.document.querySelector('style').textContent
-      style = normalizeNewline(style)
-      var id = 'data-v-' + genId(require.resolve('./fixtures/media-query.vue'))
-      expect(style).to.contain('@media print {\n.foo[' + id + '] {\n    color: #000;\n}\n}')
-      done()
-    })
-  })
-
-  it.skip('extract CSS', function (done) {
-    bundle(Object.assign({}, globalConfig, {
-      entry: './test/fixtures/extract-css.vue',
-      vue: {
-        loaders: {
-          css: ExtractTextPlugin.extract('css-loader'),
-          stylus: ExtractTextPlugin.extract('css-loader?sourceMap!stylus-loader')
-        }
-      },
-      plugins: [
-        new ExtractTextPlugin('test.output.css')
-      ]
-    }), function () {
-      var css = mfs.readFileSync('/test.output.css').toString()
-      css = normalizeNewline(css)
-      expect(css).to.contain('h1 {\n  color: #f00;\n}\n\nh2 {\n  color: green;\n}')
-      done()
-    })
-  })
-
-  it.skip('dependency injection', function (done) {
-    test({
-      entry: './test/fixtures/inject.js'
-    }, function (window) {
-      // console.log(window.injector.toString())
-      var module = interopDefault(window.injector({
-        './service': {
-          msg: 'Hello from mocked service!'
-        }
-      }))
-      var vnode = mockRender(module, module.data())
-        // <div class="msg">{{ msg }}</div>
-      expect(vnode.tag).to.equal('div')
-      expect(vnode.data.staticClass).to.equal('msg')
-      expect(vnode.children[0]).to.equal('Hello from mocked service!')
-      done()
-    })
-  })
-
-  it('translates relative URLs and respects resolve alias', function (done) {
-    test({
-      entry: './test/fixtures/resolve.vue',
-      resolve: {
-        alias: {
-          fixtures: path.resolve(__dirname, 'fixtures')
-        }
-      },
-      module: {
-        rules: [
-          {
-            test: /\.vue$/,
-            loader: loaderPath
-          },
-          {
-            test: /\.png$/,
-            loader: 'file-loader?name=[name].[hash:6].[ext]'
-          }
-        ]
-      }
-    }, function (window, module) {
-      var vnode = mockRender(module)
-        // <div>
-        //   <img src="logo.c9e00e.png">
-        //   <img src="logo.c9e00e.png">
-        // </div>
-      expect(vnode.children[0].tag).to.equal('img')
-      expect(vnode.children[0].data.attrs.src).to.equal('logo.c9e00e.png')
-      expect(vnode.children[2].tag).to.equal('img')
-      expect(vnode.children[2].data.attrs.src).to.equal('logo.c9e00e.png')
-
-      var style = window.document.querySelector('style').textContent
-      expect(style).to.contain('html { background-image: url(logo.c9e00e.png);\n}')
-      expect(style).to.contain('body { background-image: url(logo.c9e00e.png);\n}')
-      done()
-    })
-  })
-
-  it('postcss options', function (done) {
-    test({
-      entry: './test/fixtures/postcss.vue',
-      vue: {
-        postcss: {
-          options: {
-            parser: require('sugarss')
-          }
-        }
-      }
-    }, function (window) {
-      var style = window.document.querySelector('style').textContent
-      style = normalizeNewline(style)
-      expect(style).to.contain('h1 {\n  color: red;\n  font-size: 14px\n}')
-      done()
-    })
-  })
-
-  it('transpile ES2015 features in template', function (done) {
-    test({
-      entry: './test/fixtures/es2015.vue'
-    }, function (window, module) {
-      var vnode = mockRender(module, {
-          a: 'hello',
-          b: true
-        })
-        // <div :class="{[a]:true}"></div>
-      expect(vnode.tag).to.equal('div')
-      expect(vnode.data.class['test-hello']).to.equal(true)
-      expect(vnode.data.class['b']).to.equal(true)
-      done()
-    })
-  })
-
-  it('allows to export extended constructor', function (done) {
-    test({
-      entry: './test/fixtures/extend.vue'
-    }, function (window, Module) {
-      // extend.vue should export Vue constructor
-      var vnode = mockRender(Module.options, {
-        msg: 'success'
-      })
-      expect(vnode.tag).to.equal('div')
-      expect(vnode.children[0]).to.equal('success')
-      expect(new Module().msg === 'success')
-      done()
-    })
-  })
-
-  it('support es compatible modules', function (done) {
-    test({
-      entry: './test/fixtures/basic.vue',
-      vue: {
-        esModule: true
-      }
-    }, function (window, module, rawModule) {
-      expect(rawModule.__esModule).to.equal(true)
-      var vnode = mockRender(rawModule.default, {
-        msg: 'hi'
-      })
-      expect(vnode.tag).to.equal('h2')
-      expect(vnode.data.staticClass).to.equal('red')
-      expect(vnode.children[0]).to.equal('hi')
-
-      expect(rawModule.default.data().msg).to.contain('Hello from Component A!')
-      done()
-    })
-  })
-
-  it('css-modules', function (done) {
-    function testWithIdent(localIdentName, regexToMatch, cb) {
-      test({
-        entry: './test/fixtures/css-modules.vue',
-        vue: {
-          cssModules: localIdentName && {
-            localIdentName: localIdentName
-          }
-        }
-      }, function (window) {
-        var module = window.vueModule
-
-        // get local class name
-        var className = module.computed.style().red
-        expect(className).to.match(regexToMatch)
-
-        // class name in style
-        var style = [].slice.call(window.document.querySelectorAll('style')).map(function (style) {
-          return style.textContent
-        }).join('\n')
-        style = normalizeNewline(style)
-        expect(style).to.contain('.' + className + ' {\n  color: red;\n}')
-
-        // animation name
-        var match = style.match(/@keyframes\s+(\S+)\s+{/)
-        expect(match).to.have.length(2)
-        var animationName = match[1]
-        expect(animationName).to.not.equal('fade')
-        expect(style).to.contain('animation: ' + animationName + ' 1s;')
-
-        // default module + pre-processor + scoped
-        var anotherClassName = module.computed.$style().red
-        expect(anotherClassName).to.match(regexToMatch).and.not.equal(className)
-        var id = 'data-v-' + genId(require.resolve('./fixtures/css-modules.vue'))
-        expect(style).to.contain('.' + anotherClassName + '[' + id + ']')
-
-        cb()
-      })
-    }
-    // default localIdentName
-    testWithIdent(undefined, /^\w{23}/, function () {
-      // specified localIdentName
-      var ident = '[path][name]---[local]---[hash:base64:5]'
-      var regex = /^test-fixtures-css-modules---red---\w{5}/
-      testWithIdent(ident, regex, done)
-    })
-  })
-
-  it('css-modules in SSR', function (done) {
-    bundle({
-      entry: './test/fixtures/css-modules.vue',
-      target: 'node',
-      output: Object.assign({}, globalConfig.output, {
-        libraryTarget: 'commonjs2'
-      })
-    }, function (code) {
-      // http://stackoverflow.com/questions/17581830/load-node-js-module-from-string-in-memory
-      function requireFromString(src, filename) {
-        var Module = module.constructor;
-        var m = new Module();
-        m._compile(src, filename);
-        return m.exports;
-      }
-
-      var output = requireFromString(code, './test.build.js')
-      expect(output.computed.style().red).to.exist
-
-      done()
-    })
-  })
-})
-**/
