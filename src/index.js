@@ -21,6 +21,7 @@ const styleLoader = path.join(__dirname, './loaders/style-loader.js')
 const templateLoader = path.join(__dirname, './loaders/template-loader.js')
 const jsLoader = path.join(__dirname, './loaders/js-loader.js')
 const afterLessLoader = path.join(__dirname, './loaders/after-less-loader.js')
+const beforSassLoader = path.join(__dirname, './loaders/before-sass-loader.js')
 const beforeTemplateCompilerLoader = path.join(__dirname, './loaders/before-template-compiler-loader.js')
 
 const projectRoot = process.cwd()
@@ -42,6 +43,7 @@ module.exports = function(source) {
   const SCRIPT = utils.stringifyRequest(this, scriptLoader).replace(/"/g, '')
   const STYLE = utils.stringifyRequest(this, styleLoader).replace(/"/g, '')
   const AFTER_LESS_STYLE = utils.stringifyRequest(this, afterLessLoader).replace(/"/g, '')
+  const BEFORE_SASS_LOADER = utils.stringifyRequest(this, beforSassLoader).replace(/"/g, '')
   const TEMPLATE = utils.stringifyRequest(this, templateLoader).replace(/"/g, '')
   const BEFORE_TEMPLATE_COMPILER = utils.stringifyRequest(this, beforeTemplateCompilerLoader).replace(/"/g, '')
 
@@ -52,29 +54,17 @@ module.exports = function(source) {
     return source
   }
 
-  let variables = ''
-  var lessThemes = config.plugins.filter(function(plugin) {
-    return plugin.name === 'less-theme'
-  })
+  let lessThemeVar = ''
+  var lessTheme = getFirstPlugin('less-theme', config.plugins)
 
-  if (lessThemes.length) {
-    const lessThemePath = path.join(config.options.projectRoot, lessThemes[0].path)
+  if (lessTheme) {
+    const lessThemePath = path.join(config.options.projectRoot, lessTheme.path)
     this.addDependency(lessThemePath)
-    variables = getLessVariables(lessThemes[0].path)
-  }
-
-  var sassThemes = config.plugins.filter(function(plugin) {
-    return plugin.name === 'sass-theme'
-  })
-
-  // TODO SASS主题文件处理
-  if (sassThemes.length) {
-    const sassThemePath = path.join(config.options.projectRoot, sassThemes[0].path)
-    this.addDependency(sassThemePath)
+    lessThemeVar = getLessVariables(lessTheme.path)
   }
 
   source = addScriptLoader(source, SCRIPT)
-  source = addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE)
+  source = addStyleLoader(source, STYLE, lessThemeVar, AFTER_LESS_STYLE, BEFORE_SASS_LOADER)
   source = addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER)
 
   return source
@@ -150,7 +140,7 @@ function addTemplateLoader(source, TEMPLATE, BEFORE_TEMPLATE_COMPILER) {
   return rs
 }
 
-function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
+function addStyleLoader(source, STYLE, lessThemeVar, AFTER_LESS_STYLE, BEFORE_SASS_LOADER) {
   let rs = source.replace(/require\("(.*)"\)/g, function(content) {
     if (/type=style/.test(content)) {
       var loaders = content.split('!')
@@ -159,9 +149,9 @@ function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
           item = STYLE + '!' + item
         }
         if (/less-loader/.test(item)) {
-          if (variables) {
+          if (lessThemeVar) {
             var params = {
-              modifyVars: variables
+              modifyVars: lessThemeVar
             }
             if (/sourceMap/.test(item)) {
               params.sourceMap = true
@@ -171,6 +161,9 @@ function addStyleLoader(source, STYLE, variables, AFTER_LESS_STYLE) {
           }
 
           item = AFTER_LESS_STYLE + '!' + item
+        }
+        if (/sass-loader/.test(item)) {
+          item = item + '!' + BEFORE_SASS_LOADER
         }
         return item
       }).join('!')
@@ -239,7 +232,7 @@ module.exports.merge = function(oldConfig, uiConfig) {
 
   // merge oldConfig's uiConfig plugins and options
   oldConfig.plugins.forEach(function(plugin) {
-    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.customUI){
+    if (plugin.constructor.name === 'LoaderOptionsPlugin' && plugin.options.customUI) {
       const oldUIPlugins = plugin.options.customUI.plugins
       if (oldUIPlugins && oldUIPlugins.length) {
         oldUIPlugins.forEach(function(oldPlugin) {
@@ -269,7 +262,6 @@ module.exports.merge = function(oldConfig, uiConfig) {
     }
   })
 
-
   // check multi plugin instance
   const pluginGroup = _.groupBy(uiConfig.plugins, function(plugin) {
     return plugin.name
@@ -291,8 +283,6 @@ module.exports.merge = function(oldConfig, uiConfig) {
     uiConfig.options.projectRoot = projectRoot
   }
 
-  config.module.rules = config.module.rules || []
-
   const customUIConfig = getFirstPlugin('custom-ui', uiConfig.plugins)
   if (customUIConfig) {
     uiConfig.options.useUI = {
@@ -301,6 +291,18 @@ module.exports.merge = function(oldConfig, uiConfig) {
     }
   }
 
+  const lessThemeConfig = getFirstPlugin('less-theme', uiConfig.plugins)
+  if (lessThemeConfig) {
+    uiConfig.options.lessTheme = {
+      path: lessThemeConfig.path
+    }
+  }
+  const sassThemeConfig = getFirstPlugin('sass-theme', uiConfig.plugins)
+  if (sassThemeConfig) {
+    uiConfig.options.sassTheme = {
+      path: sassThemeConfig.path
+    }
+  }
   /**
    * ======== set plugins ========
    */
@@ -347,6 +349,11 @@ module.exports.merge = function(oldConfig, uiConfig) {
       }))
     } catch (e) {}
   }
+
+  /**
+   * ======== set module.rules ========
+   */
+  config.module.rules = config.module.rules || []
 
   /**
    * ======== append heng-loader ========

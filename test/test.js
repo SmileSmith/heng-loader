@@ -23,12 +23,10 @@ var globalConfig = {
     filename: 'test.build.js'
   },
   module: {
-    rules: [
-      {
-        test: /\.vue$/,
-        loader: loaderPath
-      }
-    ]
+    rules: [{
+      test: /\.vue$/,
+      loader: loaderPath
+    }]
   }
 }
 
@@ -67,10 +65,10 @@ function bundle(options, vuxOptions, cb) {
   var webpackCompiler = webpack(config)
 
   webpackCompiler.outputFileSystem = mfs
-  webpackCompiler.run(function (err, stats) {
+  webpackCompiler.run(function(err, stats) {
     expect(err).to.be.null
     if (stats.compilation.errors.length) {
-      stats.compilation.errors.forEach(function (err) {
+      stats.compilation.errors.forEach(function(err) {
         console.error(err.message)
       })
     }
@@ -80,11 +78,11 @@ function bundle(options, vuxOptions, cb) {
 }
 
 function test(options, vuxOptions, assert) {
-  bundle(options, vuxOptions, function (code) {
+  bundle(options, vuxOptions, function(code) {
     jsdom.env({
       html: '<!DOCTYPE html><html><head></head><body></body></html>',
       src: [code],
-      done: function (err, window) {
+      done: function(err, window) {
         if (err) {
           console.log(err[0].data.error.stack)
           expect(err).to.be.null
@@ -132,22 +130,22 @@ import {
         Group
     } from 'vux';
 
-`, function (opts) {
-      // console.log(opts)
-    })
+`, function(opts) {
+  // console.log(opts)
+})
 
 var themeParse = require('../src/libs/get-less-variables')
 
-var commomMapper = function (opts) {
-  components = opts.components.map(function (one) {
+var commomMapper = function(opts) {
+  const components = opts.components.map(function(one) {
     return one.newName
   })
   return `import { ${components.join(', ')} } from 'heng-ui'`
 }
 
-var vuxMapper = function (opts) {
+var vuxMapper = function(opts) {
   let str = ''
-  opts.components.forEach(function (one) {
+  opts.components.forEach(function(one) {
     if (one.originalName === 'AlertPlugin') {
       str += `import ${one.newName} from 'heng-ui/src/plugins/Alert'\n`
     } else if (one.originalName === 'ToastPlugin') {
@@ -157,37 +155,37 @@ var vuxMapper = function (opts) {
   return str
 }
 
-describe('vux-loader', function () {
+describe('vux-loader', function() {
 
-  describe('parse virtual component', function () {
+  describe('parse virtual component', function() {
     const parse = require('../src/libs/parse-virtual-component')
-    it('basic', function () {
+    it('basic', function() {
       const source = `<x-icon a="b" c="d" class="e f" slot="icon"></x-icon>`
-      const processed = parse(source, 'x-icon', function (query, a) {
+      const processed = parse(source, 'x-icon', function(query, a) {
         return '<svg ' + query.stringList + '></svg>'
       })
       expect(processed).to.equal('<svg a="b" c="d" class="e f" slot="icon"></svg>')
     })
   })
 
-  describe('parse virtual component with click event', function () {
+  describe('parse virtual component with click event', function() {
     const parse = require('../src/libs/parse-virtual-component')
-    it('basic', function () {
+    it('basic', function() {
       const source = `<x-icon a="b" c="d" class="e f" slot="icon" @click.native="handler"></x-icon>`
-      const processed = parse(source, 'x-icon', function (query, a) {
+      const processed = parse(source, 'x-icon', function(query, a) {
         return '<svg ' + query.stringList + '></svg>'
       })
       expect(processed).to.equal('<svg a="b" c="d" class="e f" slot="icon" @click="handler"></svg>')
     })
   })
 
-  describe('lib:get theme variables', function () {
-    it('basic', function () {
+  describe('lib:get theme variables', function() {
+    it('basic', function() {
       const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-001.less'))
       expect(rs.a).to.equal('b')
     })
 
-    it('ignore comments', function () {
+    it('ignore comments', function() {
       const rs = themeParse(path.resolve(__dirname, './vux-fixtures/less-theme-002.less'))
       expect(rs.a).to.equal('b')
       expect(rs.c).to.equal('d')
@@ -196,7 +194,7 @@ describe('vux-loader', function () {
     })
   })
 
-  describe('lib:import-parser', function () {
+  describe('lib:import-parser', function() {
 
     let tests = [{
       title: 'basic',
@@ -214,7 +212,7 @@ describe('vux-loader', function () {
       title: 'without space 3',
       string: `import{A,B}from 'heng-ui'`,
       rs: ['A', 'B']
-    },{
+    }, {
       title: 'do not parse comments',
       string: `// import {A,B} from 'heng-ui'
 import { C, D} from 'heng-ui'`,
@@ -257,41 +255,41 @@ import { C } from 'heng-ui'`
 import value2name from 'heng-ui/src/filters/value2name'`,
       rs: `import { Group, Cell } from 'heng-ui'
 import value2name from 'heng-ui/src/filters/value2name'`
-},{
-  title: 'heng-ui test3',
-  string: `import {Group,
+    }, {
+      title: 'heng-ui test3',
+      string: `import {Group,
 Cell} from 'heng-ui'
 import value2name from 'heng-ui/src/filters/value2name'`,
-  rs: `import { Group, Cell } from 'heng-ui'
+      rs: `import { Group, Cell } from 'heng-ui'
 import value2name from 'heng-ui/src/filters/value2name'`
-},{
-  title: 'heng-ui test4',
-  string: `import { M1, M2 } from 'heng-ui'
+    }, {
+      title: 'heng-ui test4',
+      string: `import { M1, M2 } from 'heng-ui'
 import { mapMutations, mapState } from 'vuex'
 import { Group, Cell } from 'heng-ui'
 import { Group1, Cell1 } from 'heng-ui'
 import value2name from 'heng-ui/src/filters/value2name'`,
-  rs: `import { M1, M2 } from 'heng-ui'
+      rs: `import { M1, M2 } from 'heng-ui'
 import { mapMutations, mapState } from 'vuex'
 import { Group, Cell } from 'heng-ui'
 import { Group1, Cell1 } from 'heng-ui'
 import value2name from 'heng-ui/src/filters/value2name'`
-}, {
-  title: 'heng-ui test5',
-  string: `import {
+    }, {
+      title: 'heng-ui test5',
+      string: `import {
 XX,
 YY} from 'heng-ui'`,
-  rs: `import { XX, YY } from 'heng-ui'`
-}, {
-  title: 'heng-ui test6',
-  string: `/**/
+      rs: `import { XX, YY } from 'heng-ui'`
+    }, {
+      title: 'heng-ui test6',
+      string: `/**/
 import {Divider } from 'heng-ui'`,
-  rs: `/**/
+      rs: `/**/
 import { Divider } from 'heng-ui'`
-}]
+    }]
 
-    tests.forEach(function (one) {
-      it(one.title, function () {
+    tests.forEach(function(one) {
+      it(one.title, function() {
         const rs = parse(one.string, commomMapper, 'heng-ui')
         if (typeof one.rs === 'string') {
           expect(rs).to.equal(one.rs)
@@ -304,10 +302,10 @@ import { Divider } from 'heng-ui'`
     let hengUITests = [{
       title: 'heng-plugin test1',
       string: `import {AlertPlugin, ToastPlugin} from 'heng-ui'`,
-      rs:`import AlertPlugin from 'heng-ui/src/plugins/Alert'
+      rs: `import AlertPlugin from 'heng-ui/src/plugins/Alert'
 import ToastPlugin from 'heng-ui/src/plugins/Toast'
 `
-    },{
+    }, {
       title: 'heng-plugin test2',
       string: `import {AlertPlugin, ToastPlugin} from 'heng-ui'
 // import { AlertPlugin } from 'heng-ui'`,
@@ -315,7 +313,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
 `
-    },{
+    }, {
       title: 'vux-loader plugin issue #1579 (1)',
       string: `import {
   AlertPlugin,
@@ -324,18 +322,18 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
       rs: `import AlertPlugin from 'heng-ui/src/plugins/Alert'
 import ToastPlugin from 'heng-ui/src/plugins/Toast'
 `
-    },{
+    }, {
       title: 'vux-loader plugin issue #1579 (2)',
       string: `import {AlertPlugin,
     ToastPlugin
 } from 'heng-ui'`,
-      rs:`import AlertPlugin from 'heng-ui/src/plugins/Alert'
+      rs: `import AlertPlugin from 'heng-ui/src/plugins/Alert'
 import ToastPlugin from 'heng-ui/src/plugins/Toast'
 `
     }]
 
-    hengUITests.forEach(function (one) {
-      it(one.title, function () {
+    hengUITests.forEach(function(one) {
+      it(one.title, function() {
         const rs = parse(one.string, vuxMapper, 'heng-ui')
         expect(rs).to.equal(one.rs)
       })
@@ -343,17 +341,17 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
   })
 
-  describe('plugin:less-theme', function () {
+  describe('plugin:less-theme', function() {
 
-    it('basic', function (done) {
+    it('basic', function(done) {
       test({
         entry: './test/vux-fixtures/less-theme-basic.vue'
       }, {
         plugins: [{
           name: 'less-theme',
           path: './test/vux-fixtures/less-theme-basic.less'
-          }]
-      }, function (window, module, rawModule) {
+        }]
+      }, function(window, module, rawModule) {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
@@ -368,22 +366,22 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
   })
 
-  describe('plugin:style-parser', function () {
+  describe('plugin:style-parser', function() {
 
-    it('basic', function (done) {
+    it('basic', function(done) {
       test({
         entry: './test/vux-fixtures/style-parser-basic.vue'
       }, {
         plugins: [{
           name: 'less-theme',
           path: './test/vux-fixtures/less-theme-basic.less'
-          }, {
+        }, {
           name: 'style-parser',
-          fn: function (source) {
+          fn: function(source) {
             return source.replace('@theme-p-color', 'yellow')
           }
-          }]
-      }, function (window, module, rawModule) {
+        }]
+      }, function(window, module, rawModule) {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
@@ -398,9 +396,9 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
   })
 
-  describe('plugin:template-feature-switch', function () {
+  describe('plugin:template-feature-switch', function() {
 
-    it('basic', function (done) {
+    it('basic', function(done) {
       test({
         entry: './test/vux-fixtures/template-feature-switch-basic.vue'
       }, {
@@ -411,7 +409,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
             FEATURE2: false
           }
         }]
-      }, function (window, module, rawModule) {
+      }, function(window, module, rawModule) {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
@@ -425,12 +423,12 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
   })
 
-  describe('one instance', function () {
-    it('should throw', function () {
+  describe('one instance', function() {
+    it('should throw', function() {
       const webpackConfig = {
         plugins: []
       }
-      const merge = function () {
+      const merge = function() {
         return hengLoader.merge(webpackConfig, {
           options: {
             env: 'env1'
@@ -446,8 +444,8 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
     })
   })
 
-  describe('merge multi times', function () {
-    it('should merge options', function () {
+  describe('merge multi times', function() {
+    it('should merge options', function() {
       const webpackConfig = {
         plugins: []
       }
@@ -468,7 +466,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
       expect(config2.plugins[0].options.customUI.options.env).to.equal('env2')
     })
 
-    it('should merge plugins with the same name', function () {
+    it('should merge plugins with the same name', function() {
       const webpackConfig = {}
       const config1 = hengLoader.merge(webpackConfig, {
         plugins: [{
@@ -492,7 +490,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
     })
 
-    it('should delete plugin when env is change', function () {
+    it('should delete plugin when env is change', function() {
       const webpackConfig = {}
       const config1 = hengLoader.merge(webpackConfig, {
         options: {
@@ -517,7 +515,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
     })
 
-    it('should merge old plugins', function () {
+    it('should merge old plugins', function() {
       const webpackConfig = {}
       const config1 = hengLoader.merge(webpackConfig, {
         options: {
@@ -540,7 +538,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
       expect(config2.plugins[0].options.customUI.plugins.length).to.equal(2)
 
-       const config3 = hengLoader.merge(config2, {
+      const config3 = hengLoader.merge(config2, {
         plugins: [{
           name: 'test3',
           envs: ['env3']
@@ -552,19 +550,19 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
     })
   })
 
-  describe('plugin:script-parser', function () {
+  describe('plugin:script-parser', function() {
 
-    it('fn function should work', function (done) {
+    it('fn function should work', function(done) {
       test({
         entry: './test/vux-fixtures/script-parser-fn.vue'
       }, {
         plugins: [{
           name: 'script-parser',
-          fn: function (source) {
+          fn: function(source) {
             return source.replace('AAAA', 'BBBB')
           }
-          }]
-      }, function (window, module, rawModule) {
+        }]
+      }, function(window, module, rawModule) {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
@@ -574,7 +572,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
       })
     })
 
-    it('fn function should not work with env', function (done) {
+    it('fn function should not work with env', function(done) {
       test({
         entry: './test/vux-fixtures/script-parser-fn.vue'
       }, {
@@ -584,11 +582,11 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
         plugins: [{
           name: 'script-parser',
           envs: ['production'],
-          fn: function (source) {
+          fn: function(source) {
             return source.replace('AAAA', 'BBBB')
           }
         }]
-      }, function (window, module, rawModule) {
+      }, function(window, module, rawModule) {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
@@ -599,19 +597,19 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
     })
   })
 
-  describe('plugin:template-parser', function () {
+  describe('plugin:template-parser', function() {
 
-    it('fn function should work', function (done) {
+    it('fn function should work', function(done) {
       test({
         entry: './test/vux-fixtures/template-parser-fn.vue'
       }, {
         plugins: [{
           name: 'template-parser',
-          fn: function (source) {
+          fn: function(source) {
             return source.replace('我们没有底线', '我是有底线的')
           }
-          }]
-      }, function (window, module, rawModule) {
+        }]
+      }, function(window, module, rawModule) {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
@@ -621,7 +619,7 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
       })
     })
 
-    it('replaceList param should work', function (done) {
+    it('replaceList param should work', function(done) {
       test({
         entry: './test/vux-fixtures/template-parser-fn.vue'
       }, {
@@ -630,12 +628,12 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
           replaceList: [{
             test: /我们没有/,
             replaceString: ''
-            }, {
+          }, {
             test: /底线/,
             replaceString: '底线是什么'
-            }]
           }]
-      }, function (window, module, rawModule) {
+        }]
+      }, function(window, module, rawModule) {
         var vnode = mockRender(module, {
           msg: 'hi'
         })
@@ -647,4 +645,3 @@ import ToastPlugin from 'heng-ui/src/plugins/Toast'
 
   })
 })
-
