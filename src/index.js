@@ -424,7 +424,7 @@ module.exports.merge = function(oldConfig, uiConfig) {
    * ======== set ui bable to compile js source ========
    */
   if (uiConfig.options.useUI) {
-    if (typeof uiConfig.options.vuxSetBabel === 'undefined' || uiConfig.options.vuxSetBabel === true) {
+    if (typeof uiConfig.options.setBabel === 'undefined' || uiConfig.options.setBabel === true) {
       config.module.rules.push(getBabelLoader(uiConfig.options.projectRoot, uiConfig.options.useUI.name))
     }
   }
