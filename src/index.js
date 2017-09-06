@@ -409,10 +409,10 @@ module.exports.merge = function(oldConfig, uiConfig) {
           options = rule.query
           delete rule.query
         }
-        rule.use = [jsLoader, {
+        rule.use = [{
           loader: 'babel-loader',
           options: options
-        }]
+        }, jsLoader]
         delete rule.loader
       } else {
         rule.loader = 'babel-loader!' + jsLoader
